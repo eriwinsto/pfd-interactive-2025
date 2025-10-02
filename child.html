@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' https://app.grovecms.org/ https://alaskapublic.org https://grove.npr.org">
     <title>Alaska PFD Interactive</title>
     <style>
         * {
@@ -25,8 +26,7 @@
         }
 
         section {
-            min-height: 60vh;
-            padding: 60px 20px;
+            padding: 40px 20px;
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s ease-out;
@@ -41,7 +41,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .section-icon {
@@ -66,14 +66,14 @@
         .intro-text {
             font-size: clamp(1.2rem, 3vw, 1.8rem);
             color: #A59C94;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             max-width: 600px;
         }
 
         .section-description {
             font-size: 1.1rem;
             color: #A59C94;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             line-height: 1.6;
         }
 
@@ -85,13 +85,12 @@
 
         /* Hero Section */
         .hero {
-            min-height: 60vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 20px 30px 20px;
         }
 
         /* TV Grid */
@@ -466,8 +465,7 @@
 
         /* Summary Section */
         .summary {
-            min-height: 60vh;
-            padding: 60px 20px;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
