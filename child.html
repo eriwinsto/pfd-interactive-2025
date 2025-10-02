@@ -1,115 +1,9 @@
-<script>
-        // Initialize Pym child
-        var pymChild = new pym.Child();
-
-        // Create calendars for income section
-        function createCalendar(containerId, weeksToHighlight) {
-            const container = document.getElementById(containerId);
-            const totalWeeks = 7; // Show 7 weeks (49 days) for visual consistency
-            
-            for (let i = 0; i < totalWeeks; i++) {
-                const week = document.createElement('div');
-                week.className = 'calendar-week';
-                if (i < Math.floor(weeksToHighlight)) {
-                    week.classList.add('highlighted');
-                } else if (i === Math.floor(weeksToHighlight) && weeksToHighlight % 1 !== 0) {
-                    // Partial week - make it semi-highlighted
-                    week.classList.add('highlighted');
-                    week.style.opacity = (weeksToHighlight % 1).toFixed(1);
-                }
-                container.appendChild(week);
-            }
-        }
-
-        // Create all calendars
-        createCalendar('calendar-1984', 4.5);
-        createCalendar('calendar-2003', 3);
-        createCalendar('calendar-2024', 1.5);
-
-        // Intersection Observer for scroll animations
-        const observerOptions = {
-            threshold: 0.2,
-            rootMargin: '0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    
-                    // Animate TV cards with staggered delay
-                    if (entry.target.id === 'tv-section') {
-                        const cards = entry.target.querySelectorAll('.tv-card');
-                        cards.forEach((card, idx) => {
-                            const delay = parseFloat(card.dataset.delay) * 1000;
-                            setTimeout(() => {
-                                card.classList.add('visible');
-                            }, delay);
-                        });
-                    }
-                    
-                    // Animate housing numbers
-                    if (entry.target.id === 'housing-section') {
-                        const items = entry.target.querySelectorAll('.housing-item');
-                        items.forEach((item, idx) => {
-                            setTimeout(() => {
-                                item.classList.add('visible');
-                            }, idx * 300);
-                        });
-                    }
-                    
-                    // Animate trip numbers
-                    if (entry.target.id === 'fuel-section') {
-                        const items = entry.target.querySelectorAll('.trip-item');
-                        items.forEach((item, idx) => {
-                            const delay = parseFloat(item.dataset.delay) * 1000;
-                            setTimeout(() => {
-                                item.classList.add('visible');
-                            }, delay);
-                        });
-                    }
-                    
-                    // Animate income calendar weeks
-                    if (entry.target.id === 'income-section') {
-                        const items = entry.target.querySelectorAll('.income-item');
-                        items.forEach((item, idx) => {
-                            setTimeout(() => {
-                                item.classList.add('visible');
-                                const weeks = item.querySelectorAll('.calendar-week');
-                                weeks.forEach((week, weekIdx) => {
-                                    setTimeout(() => {
-                                        week.style.opacity = week.classList.contains('highlighted') ? 
-                                            (week.style.opacity || '1') : '1';
-                                    }, weekIdx * 50);
-                                });
-                            }, idx * 400);
-                        });
-                    }
-                }
-            });
-        }, observerOptions);
-
-        // Observe all sections
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
-        });
-
-        // Send height to parent on load and resize
-        function sendHeight() {
-            pymChild.sendHeight();
-        }
-
-        window.addEventListener('load', sendHeight);
-        window.addEventListener('resize', sendHeight);
-        
-        // Send height after animations complete
-        setTimeout(sendHeight, 2000);
-    </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' https://app.grovecms.org/ https://alaskapublic.org https://grove.npr.org">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' https://app.grovecms.org https://alaskapublic.org https://grove.npr.org">
     <title>Alaska PFD Interactive</title>
     <style>
         * {
@@ -189,7 +83,6 @@
             background: #BA0C2F;
         }
 
-        /* Hero Section */
         .hero {
             display: flex;
             flex-direction: column;
@@ -197,6 +90,35 @@
             align-items: center;
             text-align: center;
             padding: 40px 20px 30px 20px;
+        }
+
+        /* PFD Amounts Section */
+        .pfd-amounts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .pfd-amount-card {
+            background: #F5F5F5;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .pfd-year-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #A59C94;
+            margin-bottom: 8px;
+        }
+
+        .pfd-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #BA0C2F;
         }
 
         /* TV Grid */
@@ -219,6 +141,10 @@
         .tv-card.current {
             background: #BA0C2F;
             color: white;
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .tv-card.visible {
@@ -233,13 +159,13 @@
             margin-bottom: 25px;
             transform: rotateY(90deg);
             transition: transform 0.8s ease-out;
+            width: 100%;
         }
 
         .tv-card.visible .tv-illustration {
             transform: rotateY(0deg);
         }
 
-        /* RCA 1982 TV */
         .tv-1982-housing {
             background: linear-gradient(180deg, #8B7355 0%, #6B5345 100%);
             padding: 20px 16px 16px 16px;
@@ -285,7 +211,6 @@
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
         }
 
-        /* Sony Wega 2003 TV */
         .tv-2003-housing {
             background: linear-gradient(180deg, #c0c5ce 0%, #92989f 50%, #7a8088 100%);
             padding: 24px 20px 18px 20px;
@@ -336,7 +261,6 @@
             letter-spacing: 2px;
         }
 
-        /* Sony BRAVIA 2025 TV */
         .tv-2025-housing {
             background: #0a0a0a;
             padding: 6px;
@@ -420,14 +344,14 @@
         }
 
         .housing-item {
-            margin-bottom: 35px;
+            margin-bottom: 40px;
         }
 
         .housing-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .housing-year {
@@ -440,32 +364,33 @@
             color: #A59C94;
         }
 
-        .housing-number-container {
-            text-align: center;
-            padding: 30px 20px;
+        .housing-bar-outer {
             background: white;
+            height: 60px;
             border-radius: 8px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .housing-number {
-            font-size: 4rem;
+        .housing-bar {
+            background: linear-gradient(90deg, #BA0C2F 0%, #d41f3f 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 1.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: #BA0C2F;
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.8s ease-out;
         }
 
-        .housing-item.visible .housing-number {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .housing-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2D2926;
+        .housing-bar-label {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #A59C94;
+            text-align: right;
         }
 
         /* Road Trips Section */
@@ -556,28 +481,26 @@
             margin-bottom: 15px;
         }
 
-        .calendar {
+        .week-boxes {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
+            gap: 8px;
             max-width: 400px;
         }
 
-        .calendar-week {
-            width: 100%;
-            padding-bottom: 100%;
-            position: relative;
+        .week-box {
+            aspect-ratio: 1;
             background: white;
             border-radius: 4px;
             transition: all 0.3s ease-out;
             opacity: 0;
         }
 
-        .income-item.visible .calendar-week {
+        .income-item.visible .week-box {
             opacity: 1;
         }
 
-        .calendar-week.highlighted {
+        .week-box.highlighted {
             background: #BA0C2F;
         }
 
@@ -608,7 +531,6 @@
             color: #2D2926;
         }
 
-        /* Footer */
         footer {
             padding: 40px 20px;
             border-top: 1px solid #ddd;
@@ -629,17 +551,13 @@
                 gap: 5px;
             }
 
-            .housing-number {
-                font-size: 3rem;
-            }
-
             .income-header-row {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
             }
 
-            .calendar {
+            .week-boxes {
                 max-width: 100%;
             }
         }
@@ -647,23 +565,39 @@
 </head>
 <body>
     <div class="container">
-        <!-- Hero Section -->
         <section class="hero" id="hero">
             <h1>Alaska's $1,000 Dividend</h1>
             <p class="intro-text">What could it buy you in 1982, 2003, and today?</p>
             <div class="accent-line"></div>
         </section>
 
-        <!-- Road Trips -->
+        <!-- PFD Amounts -->
+        <section id="pfd-amounts-section" style="padding: 20px;">
+            <div class="pfd-amounts">
+                <div class="pfd-amount-card">
+                    <div class="pfd-year-label">1982</div>
+                    <div class="pfd-amount">$1,000</div>
+                </div>
+                <div class="pfd-amount-card">
+                    <div class="pfd-year-label">2003</div>
+                    <div class="pfd-amount">$1,107.56</div>
+                </div>
+                <div class="pfd-amount-card">
+                    <div class="pfd-year-label">2025</div>
+                    <div class="pfd-amount">$1,000</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gas/Road Trips -->
         <section id="fuel-section">
             <div class="section-header">
-                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path d="M3 2v18c0 .6.4 1 1 1h4c.6 0 1-.4 1-1V2H3z"></path>
-                    <path d="M3 6h6"></path>
-                    <path d="M3 10h6"></path>
-                    <rect x="14" y="4" width="7" height="10" rx="1"></rect>
-                    <path d="M18 12h2"></path>
-                    <path d="M21 6v8"></path>
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 4h12v13c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4z"/>
+                    <rect x="5" y="6" width="8" height="6"/>
+                    <path d="M15 9h2.5c.8 0 1.5.7 1.5 1.5v4c0 .6.4 1 1 1s1-.4 1-1v-4.5c0-.8-.3-1.6-.9-2.1L18 6"/>
+                    <circle cx="20" cy="10" r="1"/>
+                    <path d="M3 21h12"/>
                 </svg>
                 <h2>Road Trip Reality</h2>
             </div>
@@ -725,10 +659,10 @@
                         <span class="housing-year">1982</span>
                         <span class="housing-median">Median: $117,271</span>
                     </div>
-                    <div class="housing-number-container">
-                        <div class="housing-number" data-number="117.2">117.2</div>
-                        <div class="housing-label">PFDs to buy a home</div>
+                    <div class="housing-bar-outer">
+                        <div class="housing-bar" data-number="117.2" data-max="398.1">117.2</div>
                     </div>
+                    <div class="housing-bar-label">PFDs to buy a home</div>
                 </div>
 
                 <div class="housing-item">
@@ -736,10 +670,10 @@
                         <span class="housing-year">2003</span>
                         <span class="housing-median">Median: $174,567</span>
                     </div>
-                    <div class="housing-number-container">
-                        <div class="housing-number" data-number="157.6">157.6</div>
-                        <div class="housing-label">PFDs to buy a home</div>
+                    <div class="housing-bar-outer">
+                        <div class="housing-bar" data-number="157.6" data-max="398.1">157.6</div>
                     </div>
+                    <div class="housing-bar-label">PFDs to buy a home</div>
                 </div>
 
                 <div class="housing-item">
@@ -747,10 +681,10 @@
                         <span class="housing-year">2025</span>
                         <span class="housing-median">Median: $398,167</span>
                     </div>
-                    <div class="housing-number-container">
-                        <div class="housing-number" data-number="398.1">398.1</div>
-                        <div class="housing-label">PFDs to buy a home</div>
+                    <div class="housing-bar-outer">
+                        <div class="housing-bar" data-number="398.1" data-max="398.1">398.1</div>
                     </div>
+                    <div class="housing-bar-label">PFDs to buy a home</div>
                 </div>
             </div>
         </section>
@@ -770,7 +704,6 @@
             </p>
 
             <div class="tv-grid">
-                <!-- 1982 TV -->
                 <div class="tv-card" data-delay="0">
                     <div class="tv-illustration">
                         <div class="tv-1982-housing">
@@ -790,7 +723,6 @@
                     <div class="tv-price">$1,000</div>
                 </div>
 
-                <!-- 2003 TV -->
                 <div class="tv-card" data-delay="0.2">
                     <div class="tv-illustration">
                         <div class="tv-2003-housing">
@@ -808,7 +740,6 @@
                     <div class="tv-price">$1,099</div>
                 </div>
 
-                <!-- 2025 TV -->
                 <div class="tv-card current" data-delay="0.4">
                     <div class="tv-illustration">
                         <div class="tv-2025-housing">
@@ -849,7 +780,7 @@
                         <div class="income-time">4.5 weeks</div>
                     </div>
                     <div class="income-median-label">Median income: $32,360</div>
-                    <div class="calendar" id="calendar-1984"></div>
+                    <div class="week-boxes" id="weeks-1984"></div>
                 </div>
 
                 <div class="income-item" data-weeks="3">
@@ -858,7 +789,7 @@
                         <div class="income-time">3 weeks</div>
                     </div>
                     <div class="income-median-label">Median income: $51,840</div>
-                    <div class="calendar" id="calendar-2003"></div>
+                    <div class="week-boxes" id="weeks-2003"></div>
                 </div>
 
                 <div class="income-item" data-weeks="1.5">
@@ -867,7 +798,7 @@
                         <div class="income-time">1.5 weeks</div>
                     </div>
                     <div class="income-median-label">Median income: $91,260</div>
-                    <div class="calendar" id="calendar-2024"></div>
+                    <div class="week-boxes" id="weeks-2024"></div>
                 </div>
             </div>
         </section>
@@ -886,7 +817,6 @@
             </div>
         </section>
 
-        <!-- Credits -->
         <footer>
             <p class="credits">
                 <strong>Sources:</strong> Alaska Permanent Fund Corporation; U.S. Federal Housing Finance Agency; U.S. Bureau of Labor Statistics; U.S. DOT Bureau of Transportation Statistics; Zillow; GasBuddy; historical product pricing from newspapers.com, crtdatabase.com, Best Buy. Fuel prices and housing costs adjusted for inflation.
@@ -899,6 +829,30 @@
     <script>
         // Initialize Pym child
         var pymChild = new pym.Child();
+
+        // Create week boxes for income section (7 boxes representing weeks)
+        function createWeekBoxes(containerId, weeksToHighlight) {
+            const container = document.getElementById(containerId);
+            const totalBoxes = 7;
+            
+            for (let i = 0; i < totalBoxes; i++) {
+                const box = document.createElement('div');
+                box.className = 'week-box';
+                
+                if (i < Math.floor(weeksToHighlight)) {
+                    box.classList.add('highlighted');
+                } else if (i === Math.floor(weeksToHighlight) && weeksToHighlight % 1 !== 0) {
+                    // Partial week highlighting
+                    box.classList.add('highlighted');
+                    box.style.opacity = (weeksToHighlight % 1).toFixed(1);
+                }
+                container.appendChild(box);
+            }
+        }
+
+        createWeekBoxes('weeks-1984', 4.5);
+        createWeekBoxes('weeks-2003', 3);
+        createWeekBoxes('weeks-2024', 1.5);
 
         // Intersection Observer for scroll animations
         const observerOptions = {
@@ -926,9 +880,11 @@
                     if (entry.target.id === 'housing-section') {
                         const bars = entry.target.querySelectorAll('.housing-bar');
                         bars.forEach((bar, idx) => {
-                            const percent = parseFloat(bar.dataset.percent);
+                            const number = parseFloat(bar.dataset.number);
+                            const max = parseFloat(bar.dataset.max);
+                            const percentage = (number / max) * 100;
                             setTimeout(() => {
-                                bar.style.width = (percent * 100) + '%';
+                                bar.style.width = percentage + '%';
                             }, idx * 300);
                         });
                     }
@@ -944,14 +900,20 @@
                         });
                     }
                     
-                    // Animate income bars
+                    // Animate income week boxes
                     if (entry.target.id === 'income-section') {
-                        const bars = entry.target.querySelectorAll('.income-bar');
-                        bars.forEach((bar, idx) => {
-                            const percent = parseFloat(bar.dataset.percent);
+                        const items = entry.target.querySelectorAll('.income-item');
+                        items.forEach((item, idx) => {
                             setTimeout(() => {
-                                bar.style.width = (percent * 10) + '%';
-                            }, idx * 300);
+                                item.classList.add('visible');
+                                const boxes = item.querySelectorAll('.week-box');
+                                boxes.forEach((box, boxIdx) => {
+                                    setTimeout(() => {
+                                        box.style.opacity = box.classList.contains('highlighted') ? 
+                                            (box.style.opacity || '1') : '1';
+                                    }, boxIdx * 50);
+                                });
+                            }, idx * 400);
                         });
                     }
                 }
